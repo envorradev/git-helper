@@ -9,45 +9,23 @@ namespace Envorra\GitHelper\Shell;
  */
 class Shell
 {
-    protected array $executed = [];
-
-    protected array $queued = [];
-
     protected static self $instance;
+    /** @var Command[] */
+    protected array $executed = [];
+    /** @var Command[] */
+    protected array $queued = [];
 
     protected function __construct()
     {
 
     }
 
-    /**
-     * @return array
-     */
-    public function getExecuted(): array
+    public static function instance(): self
     {
-        return $this->executed;
-    }
-
-    /**
-     * @return array
-     */
-    public function getQueued(): array
-    {
-        return $this->queued;
-    }
-
-    /**
-     * @param  Command|string  $command
-     * @return $this
-     */
-    public function queue(Command|string $command): static
-    {
-        if(is_string($command)) {
-            $command = Command::make($command);
+        if (!isset(self::$instance)) {
+            self::$instance = new self;
         }
-
-        $this->queued[] = $command->hasExecuted() ? $command->duplicate() : $command;
-        return $this;
+        return self::$instance;
     }
 
     /**
@@ -64,10 +42,81 @@ class Shell
     }
 
     /**
-     * @param  Command|string  $command
-     * @return Command
+     * @return ExecutedCommand[]
      */
-    public function run(Command|string $command): Command
+    public function getExecuted(): array
+    {
+        return array_map(
+            fn(int $index, Command $command) => new ExecutedCommand($command, $index),
+            array_keys($this->executed),
+            $this->executed
+        );
+    }
+
+    /**
+     * @return QueuedCommand[]
+     */
+    public function getQueued(): array
+    {
+        return array_map(
+            fn(int $index, Command $command) => new QueuedCommand($command, $index),
+            array_keys($this->queued),
+            $this->queued
+        );
+    }
+
+    /**
+     * @return ExecutedCommand|null
+     */
+    public function lastExecutedCommand(): ?ExecutedCommand
+    {
+        return $this->nthInExecuted(1);
+    }
+
+    public function firstExecutedCommand(): ?ExecutedCommand
+    {
+        return $this->nthInExecuted(-1);
+    }
+
+    public function nextInQueue(): ?QueuedCommand
+    {
+        return $this->nthInQueue(1);
+    }
+
+    public function lastInQueue(): ?QueuedCommand
+    {
+        return $this->nthInQueue(-1);
+    }
+
+    public function nthInQueue(int $nth): ?QueuedCommand
+    {
+        return $this->nth($nth, $this->getQueued());
+    }
+
+    public function nthInExecuted(int $nth): ?ExecutedCommand
+    {
+        return $this->nth($nth, $this->getExecuted());
+    }
+
+    /**
+     * @param  Command|string  $command
+     * @return $this
+     */
+    public function queue(Command|string $command): static
+    {
+        if (is_string($command)) {
+            $command = Command::make($command);
+        }
+
+        $this->queued[] = $command->hasExecuted() ? $command->duplicate() : $command;
+        return $this;
+    }
+
+    /**
+     * @param  Command|string  $command
+     * @return ExecutedCommand
+     */
+    public function run(Command|string $command): ExecutedCommand
     {
         return $this->execute($command)->lastExecutedCommand();
     }
@@ -77,25 +126,21 @@ class Shell
      */
     public function runQueued(): static
     {
-        while(count($this->queued) > 0) {
+        while (count($this->queued) > 0) {
             $this->execute(array_pop($this->queued));
         }
         return $this;
     }
 
     /**
-     * @return Command|null
+     * @template T
+     *
+     * @param  int    $nth
+     * @param  T[]  $items
+     * @return T|null
      */
-    public function lastExecutedCommand(): ?Command
+    protected function nth(int $nth, array $items): mixed
     {
-        return $this->executed[0] ?? null;
-    }
-
-    public static function instance(): self
-    {
-        if(!isset(self::$instance)) {
-            self::$instance = new self;
-        }
-        return self::$instance;
+        return array_slice($items, $nth > 0 ? $nth - 1 : $nth, 1)[0] ?? null;
     }
 }

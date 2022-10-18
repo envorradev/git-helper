@@ -2,22 +2,31 @@
 
 namespace Envorra\GitHelper\Shell;
 
+use Envorra\GitHelper\Contracts\ShellCommand;
+
 /**
  * Command
  *
  * @package Envorra\GitHelper\Shell
  */
-class Command
+class Command implements ShellCommand
 {
+    public readonly string $command;
     protected array $output = [];
     protected int $exitCode = 0;
     protected bool $executed = false;
 
-    public function __construct(
-        public readonly string $command,
-    ) {
+    /**
+     * @param  string  $command
+     */
+    public function __construct(string $command)
+    {
+        $this->command = trim(preg_replace('/\s+/', ' ', $command));
     }
 
+    /**
+     * @return $this
+     */
     public function run(): static
     {
         if(!$this->executed) {
@@ -27,39 +36,72 @@ class Command
 
         return $this;
     }
-
+    /**
+     * @inheritDoc
+     */
     public function hasExecuted(): bool
     {
         return $this->executed;
     }
-
+    /**
+     * @inheritDoc
+     */
     public function output(): array
     {
-        if(!$this->executed) {
-            $this->run();
-        }
-        return $this->output;
+        return $this->run()->output;
     }
-
+    /**
+     * @inheritDoc
+     */
+    public function succeeded(): bool
+    {
+        return $this->exitCode() === 0;
+    }
+    /**
+     * @inheritDoc
+     */
+    public function failed(): bool
+    {
+        return $this->exitCode() !== 0;
+    }
+    /**
+     * @inheritDoc
+     */
     public function exitCode(): int
     {
-        if(!$this->executed) {
-            $this->run();
-        }
-        return $this->exitCode;
+        return $this->run()->exitCode;
     }
 
-    public function duplicate(): self
+    /**
+     * @return $this
+     */
+    public function duplicate(): static
     {
         return new self($this->command);
     }
 
-    public static function make(string $command): self
+    /**
+     * @return ImmutableCommand
+     */
+    public function toImmutable(): ImmutableCommand
+    {
+        return $this->executed ? new ExecutedCommand($this) : new ImmutableCommand($this);
+    }
+
+    /**
+     * @param  string  $command
+     * @return static
+     */
+    public static function make(string $command): static
     {
         return new self($command);
     }
 
-    public static function execute(string $command): self
+    /**
+     * @param  string  $command
+     * @return static
+     */
+    public static function execute(string $command): static
     {
         return self::make($command)->run();
     }

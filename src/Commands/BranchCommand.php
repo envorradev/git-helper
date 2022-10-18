@@ -9,8 +9,17 @@ namespace Envorra\GitHelper\Commands;
  */
 class BranchCommand extends AbstractCommand
 {
+    /**
+     * @var string
+     */
     protected string $mode = '';
+    /**
+     * @var array
+     */
     protected array $flags = [];
+    /**
+     * @var array
+     */
     protected array $arguments = [];
 
     /**
@@ -21,6 +30,9 @@ class BranchCommand extends AbstractCommand
         return 'git branch {mode} {flags} {arguments}';
     }
 
+    /**
+     * @return $this
+     */
     public function reset(): static
     {
         $this->mode = '';
@@ -29,11 +41,20 @@ class BranchCommand extends AbstractCommand
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getAll(): array
     {
-        return $this->reset()->run()->output();
+        return array_map(
+            callback: fn($name) => preg_replace('/^[*\s]*/', '', $name),
+            array: $this->reset()->run()->output()
+        );
     }
 
+    /**
+     * @return string|null
+     */
     public function getCurrent(): ?string
     {
         $this->reset();
@@ -41,12 +62,19 @@ class BranchCommand extends AbstractCommand
         return $this->run()->output()[0] ?? null;
     }
 
+    /**
+     * @return $this
+     */
     public function force(): static
     {
         $this->flags[] = '--force';
         return $this;
     }
 
+    /**
+     * @param  string  $name
+     * @return $this
+     */
     public function delete(string $name): static
     {
         $this->mode = '--delete';
@@ -54,6 +82,11 @@ class BranchCommand extends AbstractCommand
         return $this;
     }
 
+    /**
+     * @param  string  $oldName
+     * @param  string  $newName
+     * @return $this
+     */
     public function move(string $oldName, string $newName): static
     {
         $this->mode = '--move';
@@ -61,6 +94,11 @@ class BranchCommand extends AbstractCommand
         return $this;
     }
 
+    /**
+     * @param  string  $branch
+     * @param  string  $to
+     * @return $this
+     */
     public function copy(string $branch, string $to): static
     {
         $this->mode = '--copy';
@@ -68,6 +106,10 @@ class BranchCommand extends AbstractCommand
         return $this;
     }
 
+    /**
+     * @param  string  $name
+     * @return $this
+     */
     public function create(string $name): static
     {
         $this->mode = '';

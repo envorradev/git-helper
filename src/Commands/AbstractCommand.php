@@ -4,6 +4,8 @@ namespace Envorra\GitHelper\Commands;
 
 use Envorra\GitHelper\Shell\Shell;
 use Envorra\GitHelper\Shell\Command;
+use Envorra\GitHelper\Shell\QueuedCommand;
+use Envorra\GitHelper\Shell\ExecutedCommand;
 
 /**
  * AbstractCommand
@@ -39,9 +41,17 @@ abstract class AbstractCommand
     }
 
     /**
-     * @return Command
+     * @return QueuedCommand
      */
-    public function run(): Command
+    public function queue(): QueuedCommand
+    {
+        return Shell::instance()->queue($this->build())->lastInQueue();
+    }
+
+    /**
+     * @return ExecutedCommand
+     */
+    public function run(): ExecutedCommand
     {
         return Shell::instance()->run($this->build());
     }
