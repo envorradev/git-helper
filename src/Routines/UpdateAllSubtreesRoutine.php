@@ -11,6 +11,7 @@ use Exception;
  */
 class UpdateAllSubtreesRoutine extends AbstractRoutine
 {
+    public bool $pushTags = false;
     protected SubtreeToDifferentRepositoryRoutine $routine;
 
     /**
@@ -29,6 +30,23 @@ class UpdateAllSubtreesRoutine extends AbstractRoutine
         }
     }
 
+    /**
+     * @return $this
+     */
+    public function dontPushTags(): self
+    {
+        $this->pushTags = false;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function pushTags(): self
+    {
+        $this->pushTags = true;
+        return $this;
+    }
 
     /**
      * @return void
@@ -41,6 +59,7 @@ class UpdateAllSubtreesRoutine extends AbstractRoutine
                           ->setBranch($name)
                           ->setRemote($name)
                           ->setRepository($this->repositoryBaseUrl.$name)
+                          ->setTags($this->pushTags)
                           ->run();
         }
     }

@@ -15,6 +15,7 @@ class SubtreeToDifferentRepositoryRoutine extends AbstractRoutine
     protected string $prefix;
     protected string $remote;
     protected string $repository;
+    protected bool $tags = false;
 
     /**
      * @return string
@@ -97,13 +98,30 @@ class SubtreeToDifferentRepositoryRoutine extends AbstractRoutine
         if ($this->validate()) {
             (new AddRemoteIfNotFoundRoutine($this->remote, $this->repository))->run();
 
+            $this->execute($this->subtree()->prefix($this->prefix)->splitToBranch($this->branch));
+
+            $pushCommand = $this->push()->setUpstream($this->remote, $this->branch, 'master');
+
+            if ($this->tags) {
+                $pushCommand->tags();
+            }
+
             $this->execute([
-                $this->subtree()->prefix($this->prefix)->splitToBranch($this->branch),
-                $this->push()->setUpstream($this->remote, $this->branch, 'master'),
+                $pushCommand,
                 $this->branch()->delete($this->branch)->force(),
                 $this->remote()->remove($this->remote),
             ]);
         }
+    }
+
+    /**
+     * @param  bool  $value
+     * @return $this
+     */
+    public function setTags(bool $value): self
+    {
+        $this->tags = $value;
+        return $this;
     }
 
     /**
@@ -112,5 +130,21 @@ class SubtreeToDifferentRepositoryRoutine extends AbstractRoutine
     public function validate(): bool
     {
         return isset($this->prefix, $this->branch, $this->remote, $this->repository);
+    }
+
+    /**
+     * @return $this
+     */
+    public function withTags(): self
+    {
+        return $this->setTags(true);
+    }
+
+    /**
+     * @return $this
+     */
+    public function withoutTags(): self
+    {
+        return $this->setTags(false);
     }
 }
