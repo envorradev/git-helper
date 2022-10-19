@@ -51,6 +51,14 @@ final class ExecutableCommand implements ShellCommand
     }
 
     /**
+     * @inheritDoc
+     */
+    public function command(): string
+    {
+        return $this->command;
+    }
+
+    /**
      * @return $this
      */
     public function duplicate(): self
@@ -117,13 +125,5 @@ final class ExecutableCommand implements ShellCommand
     public function toImmutable(): ImmutableCommand
     {
         return $this->executed ? new ExecutedCommand($this) : new ImmutableCommand($this);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function command(): string
-    {
-        return $this->command;
     }
 }

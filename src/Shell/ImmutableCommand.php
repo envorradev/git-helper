@@ -2,7 +2,6 @@
 
 namespace Envorra\GitHelper\Shell;
 
-use Envorra\GitHelper\Contracts\ShellCommand;
 use Envorra\GitHelper\Contracts\ShellCommandImmutable;
 
 /**
@@ -27,9 +26,17 @@ class ImmutableCommand implements ShellCommandImmutable
     /**
      * @inheritDoc
      */
-    public function output(): array|null
+    public function __toString()
     {
-        return $this->output ?? null;
+        return $this->command;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function command(): string
+    {
+        return $this->command;
     }
 
     /**
@@ -43,6 +50,14 @@ class ImmutableCommand implements ShellCommandImmutable
     /**
      * @inheritDoc
      */
+    public function failed(): bool
+    {
+        return !is_null($this->exitCode()) && $this->exitCode() !== 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function hasExecuted(): bool
     {
         return $this->executed;
@@ -51,33 +66,16 @@ class ImmutableCommand implements ShellCommandImmutable
     /**
      * @inheritDoc
      */
+    public function output(): array|null
+    {
+        return $this->output ?? null;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function succeeded(): bool
     {
         return $this->exitCode() === 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function failed(): bool
-    {
-        return !is_null($this->exitCode()) && $this->exitCode() !== 0;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function __toString()
-    {
-        return $this->command;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function command(): string
-    {
-        return $this->command;
     }
 }

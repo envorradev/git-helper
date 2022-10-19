@@ -10,9 +10,9 @@ namespace Envorra\GitHelper\Shell;
 class ExecutedCommand extends ImmutableCommand
 {
     public readonly int $exitCode;
-    public readonly bool $succeeded;
     public readonly bool $failed;
     public readonly array $output;
+    public readonly bool $succeeded;
 
     /**
      * @param  ExecutableCommand  $command

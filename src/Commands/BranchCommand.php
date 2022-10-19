@@ -10,34 +10,58 @@ namespace Envorra\GitHelper\Commands;
 class BranchCommand extends AbstractCommand
 {
     /**
-     * @var string
+     * @var array
      */
-    protected string $mode = '';
+    protected array $arguments = [];
     /**
      * @var array
      */
     protected array $flags = [];
     /**
-     * @var array
+     * @var string
      */
-    protected array $arguments = [];
+    protected string $mode = '';
 
     /**
-     * @inheritDoc
+     * @param  string  $branch
+     * @param  string  $to
+     * @return $this
      */
-    public function signature(): string
+    public function copy(string $branch, string $to): static
     {
-        return 'git branch {mode} {flags} {arguments}';
+        $this->mode = '--copy';
+        $this->arguments = [$branch, $to];
+        return $this;
+    }
+
+    /**
+     * @param  string  $name
+     * @return $this
+     */
+    public function create(string $name): static
+    {
+        $this->mode = '';
+        $this->arguments = [$name];
+        return $this;
+    }
+
+    /**
+     * @param  string  $name
+     * @return $this
+     */
+    public function delete(string $name): static
+    {
+        $this->mode = '--delete';
+        $this->arguments = [$name];
+        return $this;
     }
 
     /**
      * @return $this
      */
-    public function reset(): static
+    public function force(): static
     {
-        $this->mode = '';
-        $this->flags = [];
-        $this->arguments = [];
+        $this->flags[] = '--force';
         return $this;
     }
 
@@ -63,26 +87,6 @@ class BranchCommand extends AbstractCommand
     }
 
     /**
-     * @return $this
-     */
-    public function force(): static
-    {
-        $this->flags[] = '--force';
-        return $this;
-    }
-
-    /**
-     * @param  string  $name
-     * @return $this
-     */
-    public function delete(string $name): static
-    {
-        $this->mode = '--delete';
-        $this->arguments = [$name];
-        return $this;
-    }
-
-    /**
      * @param  string  $oldName
      * @param  string  $newName
      * @return $this
@@ -95,25 +99,21 @@ class BranchCommand extends AbstractCommand
     }
 
     /**
-     * @param  string  $branch
-     * @param  string  $to
      * @return $this
      */
-    public function copy(string $branch, string $to): static
+    public function reset(): static
     {
-        $this->mode = '--copy';
-        $this->arguments = [$branch, $to];
+        $this->mode = '';
+        $this->flags = [];
+        $this->arguments = [];
         return $this;
     }
 
     /**
-     * @param  string  $name
-     * @return $this
+     * @inheritDoc
      */
-    public function create(string $name): static
+    public function signature(): string
     {
-        $this->mode = '';
-        $this->arguments = [$name];
-        return $this;
+        return 'git branch {mode} {flags} {arguments}';
     }
 }

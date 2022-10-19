@@ -12,9 +12,9 @@ use Stringable;
 interface CommandBuilder extends Stringable
 {
     /**
-     * @return ShellCommandImmutable
+     * @return string
      */
-    public function run(): ShellCommandImmutable;
+    public function build(): string;
 
     /**
      * @return ShellCommandImmutable
@@ -22,17 +22,17 @@ interface CommandBuilder extends Stringable
     public function queue(): ShellCommandImmutable;
 
     /**
-     * @return string
+     * @return $this
      */
-    public function build(): string;
+    public function reset(): static;
+
+    /**
+     * @return ShellCommandImmutable
+     */
+    public function run(): ShellCommandImmutable;
 
     /**
      * @return string
      */
     public function signature(): string;
-
-    /**
-     * @return $this
-     */
-    public function reset(): static;
 }

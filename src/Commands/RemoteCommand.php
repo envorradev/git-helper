@@ -14,20 +14,26 @@ class RemoteCommand extends AbstractCommand
      */
     protected string|null $action = null;
     /**
-     * @var string|null
-     */
-    protected string|null $name = null;
-    /**
      * @var array
      */
     protected array $arguments = [];
+    /**
+     * @var string|null
+     */
+    protected string|null $name = null;
 
     /**
-     * @inheritDoc
+     * @param  string  $name
+     * @param  string  $url
+     * @return $this
      */
-    public function signature(): string
+    public function add(string $name, string $url): static
     {
-        return 'git remote {action} {name} {arguments}';
+        $this->reset();
+        $this->action = 'add';
+        $this->name = $name;
+        $this->arguments[] = $url;
+        return $this;
     }
 
     /**
@@ -45,31 +51,6 @@ class RemoteCommand extends AbstractCommand
     public function hasRemote(string $name): bool
     {
         return in_array($name, $this->getAll());
-    }
-
-    /**
-     * @return $this
-     */
-    public function reset(): static
-    {
-        $this->action = null;
-        $this->name = null;
-        $this->arguments = [];
-        return $this;
-    }
-
-    /**
-     * @param  string  $name
-     * @param  string  $url
-     * @return $this
-     */
-    public function add(string $name, string $url): static
-    {
-        $this->reset();
-        $this->action = 'add';
-        $this->name = $name;
-        $this->arguments[] = $url;
-        return $this;
     }
 
     /**
@@ -99,6 +80,17 @@ class RemoteCommand extends AbstractCommand
     }
 
     /**
+     * @return $this
+     */
+    public function reset(): static
+    {
+        $this->action = null;
+        $this->name = null;
+        $this->arguments = [];
+        return $this;
+    }
+
+    /**
      * @param  string  $name
      * @return $this
      */
@@ -108,5 +100,13 @@ class RemoteCommand extends AbstractCommand
         $this->action = 'show';
         $this->name = $name;
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function signature(): string
+    {
+        return 'git remote {action} {name} {arguments}';
     }
 }

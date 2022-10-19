@@ -25,7 +25,7 @@ class AddRemoteIfNotFoundRoutine extends AbstractRoutine
      */
     public function run(): void
     {
-        if(!$this->remote()->hasRemote($this->remoteName)) {
+        if (!$this->remote()->hasRemote($this->remoteName)) {
             $this->execute($this->remote()->add($this->remoteName, $this->remoteUrl));
         }
     }

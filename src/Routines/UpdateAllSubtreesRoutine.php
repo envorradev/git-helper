@@ -2,6 +2,8 @@
 
 namespace Envorra\GitHelper\Routines;
 
+use Exception;
+
 /**
  * UpdateAllSubtreesRoutine
  *
@@ -11,6 +13,10 @@ class UpdateAllSubtreesRoutine extends AbstractRoutine
 {
     protected SubtreeToDifferentRepositoryRoutine $routine;
 
+    /**
+     * @param  string  $repositoryBaseUrl
+     * @param  array   $prefixMap
+     */
     public function __construct(
         protected string $repositoryBaseUrl,
         protected array $prefixMap,
@@ -18,12 +24,16 @@ class UpdateAllSubtreesRoutine extends AbstractRoutine
         parent::__construct();
         $this->routine = new SubtreeToDifferentRepositoryRoutine();
 
-        if(!str_ends_with($this->repositoryBaseUrl, '/')) {
+        if (!str_ends_with($this->repositoryBaseUrl, '/')) {
             $this->repositoryBaseUrl .= '/';
         }
     }
 
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function run(): void
     {
         foreach ($this->prefixMap as $name => $prefix) {

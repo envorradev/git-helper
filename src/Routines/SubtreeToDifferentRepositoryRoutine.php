@@ -2,6 +2,8 @@
 
 namespace Envorra\GitHelper\Routines;
 
+use Exception;
+
 /**
  * SubtreeToDifferentRepositoryRoutine
  *
@@ -87,20 +89,12 @@ class SubtreeToDifferentRepositoryRoutine extends AbstractRoutine
     }
 
     /**
-     * @return bool
-     */
-    public function validate(): bool
-    {
-        return isset($this->prefix, $this->branch, $this->remote, $this->repository);
-    }
-
-    /**
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function run(): void
     {
-        if($this->validate()) {
+        if ($this->validate()) {
             (new AddRemoteIfNotFoundRoutine($this->remote, $this->repository))->run();
 
             $this->execute([
@@ -110,5 +104,13 @@ class SubtreeToDifferentRepositoryRoutine extends AbstractRoutine
                 $this->remote()->remove($this->remote),
             ]);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function validate(): bool
+    {
+        return isset($this->prefix, $this->branch, $this->remote, $this->repository);
     }
 }

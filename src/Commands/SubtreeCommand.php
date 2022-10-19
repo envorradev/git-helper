@@ -2,6 +2,8 @@
 
 namespace Envorra\GitHelper\Commands;
 
+use Exception;
+
 /**
  * SubtreeCommand
  *
@@ -14,20 +16,23 @@ class SubtreeCommand extends AbstractCommand
      */
     protected string|null $action = null;
     /**
-     * @var string|null
-     */
-    protected string|null $prefix = null;
-    /**
      * @var array
      */
     protected array $arguments = [];
+    /**
+     * @var string|null
+     */
+    protected string|null $prefix = null;
 
     /**
-     * @inheritDoc
+     * @param  string  $prefix
+     * @return $this
      */
-    public function signature(): string
+    public function prefix(string $prefix): static
     {
-        return 'git subtree {action} --prefix={prefix} {arguments}';
+        $this->reset();
+        $this->prefix = '"'.$prefix.'"';
+        return $this;
     }
 
     /**
@@ -42,20 +47,17 @@ class SubtreeCommand extends AbstractCommand
     }
 
     /**
-     * @param  string  $prefix
-     * @return $this
+     * @inheritDoc
      */
-    public function prefix(string $prefix): static
+    public function signature(): string
     {
-        $this->reset();
-        $this->prefix = '"'.$prefix.'"';
-        return $this;
+        return 'git subtree {action} --prefix={prefix} {arguments}';
     }
 
     /**
      * @param  string  ...$arguments
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function split(string ...$arguments): static
     {
@@ -68,7 +70,7 @@ class SubtreeCommand extends AbstractCommand
     /**
      * @param  string  $branchName
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function splitToBranch(string $branchName): static
     {
@@ -77,12 +79,12 @@ class SubtreeCommand extends AbstractCommand
 
     /**
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     protected function throwIfPrefixNotSet(): void
     {
-        if(!isset($this->prefix)) {
-            throw new \Exception('Set prefix first!');
+        if (!isset($this->prefix)) {
+            throw new Exception('Set prefix first!');
         }
     }
 }

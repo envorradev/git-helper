@@ -25,22 +25,6 @@ class Git
     }
 
     /**
-     * @return Shell
-     */
-    public function runQueued(): Shell
-    {
-        return $this->shell()->runQueued();
-    }
-
-    /**
-     * @return Shell
-     */
-    public function shell(): Shell
-    {
-        return Shell::instance();
-    }
-
-    /**
      * @return BranchCommand
      */
     public function branch(): BranchCommand
@@ -62,6 +46,22 @@ class Git
     public function remote(): RemoteCommand
     {
         return new RemoteCommand();
+    }
+
+    /**
+     * @return Shell
+     */
+    public function runQueued(): Shell
+    {
+        return $this->shell()->runQueued();
+    }
+
+    /**
+     * @return Shell
+     */
+    public function shell(): Shell
+    {
+        return Shell::instance();
     }
 
     /**
