@@ -3,21 +3,22 @@
 namespace Envorra\GitHelper\Shell;
 
 use Envorra\GitHelper\Contracts\ShellCommand;
+use Envorra\GitHelper\Contracts\ShellCommandImmutable;
 
 /**
  * ImmutableCommand
  *
  * @package Envorra\GitHelper\Shell
  */
-class ImmutableCommand implements ShellCommand
+class ImmutableCommand implements ShellCommandImmutable
 {
     public readonly string $command;
     public readonly bool $executed;
 
     /**
-     * @param  Command  $command
+     * @param  ExecutableCommand  $command
      */
-    public function __construct(Command $command)
+    public function __construct(ExecutableCommand $command)
     {
         $this->command = $command->command;
         $this->executed = $command->hasExecuted();
@@ -64,4 +65,19 @@ class ImmutableCommand implements ShellCommand
     }
 
 
+    /**
+     * @inheritDoc
+     */
+    public function __toString()
+    {
+        return $this->command;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function command(): string
+    {
+        return $this->command;
+    }
 }

@@ -3,21 +3,24 @@
 namespace Envorra\GitHelper\Commands;
 
 use Envorra\GitHelper\Shell\Shell;
-use Envorra\GitHelper\Shell\Command;
 use Envorra\GitHelper\Shell\QueuedCommand;
 use Envorra\GitHelper\Shell\ExecutedCommand;
+use Envorra\GitHelper\Contracts\CommandBuilder;
 
 /**
  * AbstractCommand
  *
  * @package Envorra\GitHelper\Commands
  */
-abstract class AbstractCommand
+abstract class AbstractCommand implements CommandBuilder
 {
     /**
-     * @return string
+     * @inheritDoc
      */
-    abstract public function signature(): string;
+    public function __toString(): string
+    {
+        return $this->build();
+    }
 
     /**
      * @return string
@@ -26,11 +29,11 @@ abstract class AbstractCommand
     {
         preg_match_all('/\{([a-zA-Z0-9]+)\}/', $this->signature(), $matches);
         $values = [];
-        foreach($matches[1] ?? [] as $prop) {
-            if(property_exists($this, $prop)) {
+        foreach ($matches[1] ?? [] as $prop) {
+            if (property_exists($this, $prop)) {
                 $value = $this->$prop;
 
-                if(is_array($value)) {
+                if (is_array($value)) {
                     $value = implode(' ', $value);
                 }
 
@@ -55,4 +58,9 @@ abstract class AbstractCommand
     {
         return Shell::instance()->run($this->build());
     }
+
+    /**
+     * @return string
+     */
+    abstract public function signature(): string;
 }

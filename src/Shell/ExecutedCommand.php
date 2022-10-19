@@ -15,11 +15,11 @@ class ExecutedCommand extends ImmutableCommand
     public readonly array $output;
 
     /**
-     * @param  Command   $command
-     * @param  int|null  $stackIndex
+     * @param  ExecutableCommand  $command
+     * @param  int|null           $stackIndex
      */
     public function __construct(
-        Command $command,
+        ExecutableCommand $command,
         public readonly int|null $stackIndex = null,
     ) {
         parent::__construct($command);

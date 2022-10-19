@@ -2,13 +2,20 @@
 
 namespace Envorra\GitHelper\Contracts;
 
+use Stringable;
+
 /**
  * ShellCommand
  *
  * @package Envorra\GitHelper\Contracts
  */
-interface ShellCommand
+interface ShellCommand extends Stringable
 {
+    /**
+     * @return string
+     */
+    public function command(): string;
+
     /**
      * @return array|null
      */

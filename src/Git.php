@@ -17,17 +17,49 @@ use Envorra\GitHelper\Commands\SubtreeCommand;
 class Git
 {
     /**
+     * @return self
+     */
+    public static function instance(): self
+    {
+        return new self;
+    }
+
+    /**
+     * @return Shell
+     */
+    public function runQueued(): Shell
+    {
+        return $this->shell()->runQueued();
+    }
+
+    /**
+     * @return Shell
+     */
+    public function shell(): Shell
+    {
+        return Shell::instance();
+    }
+
+    /**
      * @return BranchCommand
      */
-    public static function branch(): BranchCommand
+    public function branch(): BranchCommand
     {
         return new BranchCommand();
     }
 
     /**
+     * @return PushCommand
+     */
+    public function push(): PushCommand
+    {
+        return new PushCommand();
+    }
+
+    /**
      * @return RemoteCommand
      */
-    public static function remote(): RemoteCommand
+    public function remote(): RemoteCommand
     {
         return new RemoteCommand();
     }
@@ -35,24 +67,8 @@ class Git
     /**
      * @return SubtreeCommand
      */
-    public static function subtree(): SubtreeCommand
+    public function subtree(): SubtreeCommand
     {
         return new SubtreeCommand();
-    }
-
-    /**
-     * @return PushCommand
-     */
-    public static function push(): PushCommand
-    {
-        return new PushCommand();
-    }
-
-    /**
-     * @return Shell
-     */
-    public static function shell(): Shell
-    {
-        return Shell::instance();
     }
 }

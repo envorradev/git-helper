@@ -10,11 +10,11 @@ namespace Envorra\GitHelper\Shell;
 class QueuedCommand extends ImmutableCommand
 {
     /**
-     * @param  Command   $command
-     * @param  int|null  $queueIndex
+     * @param  ExecutableCommand  $command
+     * @param  int|null           $queueIndex
      */
     public function __construct(
-        Command $command,
+        ExecutableCommand $command,
         public readonly int|null $queueIndex = null,
     ) {
         parent::__construct($command);

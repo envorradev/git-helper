@@ -2,6 +2,9 @@
 
 namespace Envorra\GitHelper\Shell;
 
+use Envorra\GitHelper\Contracts\ShellCommand;
+use Envorra\GitHelper\Contracts\CommandBuilder;
+
 /**
  * Shell
  *
@@ -9,17 +12,22 @@ namespace Envorra\GitHelper\Shell;
  */
 class Shell
 {
+
     protected static self $instance;
-    /** @var Command[] */
+    /** @var ExecutableCommand[] */
     protected array $executed = [];
-    /** @var Command[] */
+    /** @var ExecutableCommand[] */
     protected array $queued = [];
 
-    protected function __construct()
+
+    private function __construct()
     {
 
     }
 
+    /**
+     * @return static
+     */
     public static function instance(): self
     {
         if (!isset(self::$instance)) {
@@ -28,17 +36,23 @@ class Shell
         return self::$instance;
     }
 
+
     /**
-     * @param  Command|string  $command
+     * @param  ExecutableCommand|CommandBuilder|string  $command
      * @return $this
      */
-    public function execute(Command|string $command): static
+    public function execute(ExecutableCommand|CommandBuilder|string $command): static
     {
-        array_unshift(
-            $this->executed,
-            is_string($command) ? Command::execute($command) : $command->run()
-        );
+        array_unshift($this->executed, $this->makeExecutableCommand($command)->run());
         return $this;
+    }
+
+    /**
+     * @return ExecutedCommand|null
+     */
+    public function firstExecutedCommand(): ?ExecutedCommand
+    {
+        return $this->nthInExecuted(-1);
     }
 
     /**
@@ -47,7 +61,7 @@ class Shell
     public function getExecuted(): array
     {
         return array_map(
-            fn(int $index, Command $command) => new ExecutedCommand($command, $index),
+            fn(int $index, ExecutableCommand $command) => new ExecutedCommand($command, $index),
             array_keys($this->executed),
             $this->executed
         );
@@ -59,7 +73,7 @@ class Shell
     public function getQueued(): array
     {
         return array_map(
-            fn(int $index, Command $command) => new QueuedCommand($command, $index),
+            fn(int $index, ExecutableCommand $command) => new QueuedCommand($command, $index),
             array_keys($this->queued),
             $this->queued
         );
@@ -73,50 +87,57 @@ class Shell
         return $this->nthInExecuted(1);
     }
 
-    public function firstExecutedCommand(): ?ExecutedCommand
-    {
-        return $this->nthInExecuted(-1);
-    }
-
-    public function nextInQueue(): ?QueuedCommand
-    {
-        return $this->nthInQueue(1);
-    }
-
+    /**
+     * @return QueuedCommand|null
+     */
     public function lastInQueue(): ?QueuedCommand
     {
         return $this->nthInQueue(-1);
     }
 
-    public function nthInQueue(int $nth): ?QueuedCommand
+    /**
+     * @return QueuedCommand|null
+     */
+    public function nextInQueue(): ?QueuedCommand
     {
-        return $this->nth($nth, $this->getQueued());
+        return $this->nthInQueue(1);
     }
 
+    /**
+     * @param  int  $nth
+     * @return ExecutedCommand|null
+     */
     public function nthInExecuted(int $nth): ?ExecutedCommand
     {
         return $this->nth($nth, $this->getExecuted());
     }
 
     /**
-     * @param  Command|string  $command
+     * @param  int  $nth
+     * @return QueuedCommand|null
+     */
+    public function nthInQueue(int $nth): ?QueuedCommand
+    {
+        return $this->nth($nth, $this->getQueued());
+    }
+
+
+    /**
+     * @param  ExecutableCommand|CommandBuilder|string  $command
      * @return $this
      */
-    public function queue(Command|string $command): static
+    public function queue(ExecutableCommand|CommandBuilder|string $command): static
     {
-        if (is_string($command)) {
-            $command = Command::make($command);
-        }
-
+        $command = $this->makeExecutableCommand($command);
         $this->queued[] = $command->hasExecuted() ? $command->duplicate() : $command;
         return $this;
     }
 
     /**
-     * @param  Command|string  $command
+     * @param  ExecutableCommand|CommandBuilder|string  $command
      * @return ExecutedCommand
      */
-    public function run(Command|string $command): ExecutedCommand
+    public function run(ExecutableCommand|CommandBuilder|string $command): ExecutedCommand
     {
         return $this->execute($command)->lastExecutedCommand();
     }
@@ -133,9 +154,22 @@ class Shell
     }
 
     /**
+     * @param  ShellCommand|CommandBuilder|string  $command
+     * @return ExecutableCommand
+     */
+    protected function makeExecutableCommand(ShellCommand|CommandBuilder|string $command): ExecutableCommand
+    {
+        if ($command instanceof ExecutableCommand) {
+            return $command;
+        }
+
+        return ExecutableCommand::make((string) $command);
+    }
+
+    /**
      * @template T
      *
-     * @param  int    $nth
+     * @param  int  $nth
      * @param  T[]  $items
      * @return T|null
      */
