@@ -1,7 +1,12 @@
 {
     "name": "envorradev/git-helper",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "license": "MIT",
     "require": {
-        "php": "^8.1",
+        "php": "^8.1"
+    },
+    "require-dev": {
         "ramsey/composer-repl": "^1.4"
     },
     "autoload": {
@@ -13,5 +18,11 @@
         "allow-plugins": {
             "ramsey/composer-repl": true
         }
-    }
+    },
+    "authors": [
+        {
+            "name": "Sam Taylor",
+            "email": "15961687+samueljtaylor@users.noreply.github.com"
+        }
+    ]
 }
